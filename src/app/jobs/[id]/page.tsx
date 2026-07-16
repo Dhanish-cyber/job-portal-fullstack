@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
-import { applyForJob } from "@/app/actions/application";
+import { ApplyButton } from "@/components/ApplyButton";
 
 export default async function JobDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -16,7 +16,14 @@ export default async function JobDetailsPage(props: { params: Promise<{ id: stri
   try {
     const res = await fetch(`http://localhost:5000/api/jobs/${params.id}`, { cache: 'no-store' });
     if (res.ok) {
-      job = await res.json();
+      const data = await res.json();
+      if (data) {
+        job = {
+          ...data,
+          skillsReq: data.skills_required || "",
+          salaryRange: data.salary_range || ""
+        };
+      }
     }
 
     if (session?.user && session.user.role === "CANDIDATE") {
@@ -91,12 +98,7 @@ export default async function JobDetailsPage(props: { params: Promise<{ id: stri
             hasApplied ? (
               <Button disabled variant="secondary" size="lg">Already Applied</Button>
             ) : canApply ? (
-              <form action={async () => {
-                "use server";
-                await applyForJob(job.id);
-              }}>
-                <Button size="lg" type="submit">Apply Now</Button>
-              </form>
+              <ApplyButton jobId={job.id} />
             ) : (
               <Link href="/candidate/profile">
                 <Button size="lg">Create Profile to Apply</Button>

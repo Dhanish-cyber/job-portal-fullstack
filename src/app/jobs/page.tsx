@@ -17,6 +17,11 @@ export default async function PublicJobsPage(props: {
     if (res.ok) {
       const data = await res.json();
       jobs = data.jobs || [];
+      jobs = jobs.map((j: any) => ({
+        ...j,
+        skillsReq: j.skills_required || "",
+        salaryRange: j.salary_range || ""
+      }));
     }
   } catch (e) {
     console.warn("Backend not reachable. Showing empty list.");

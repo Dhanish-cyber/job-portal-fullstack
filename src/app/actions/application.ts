@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 export async function applyForJob(jobId: string) {
   const session = await auth();
   if (!session?.user || session.user.role !== "CANDIDATE") {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
 
   const token = (session as any).accessToken;
@@ -22,7 +22,7 @@ export async function applyForJob(jobId: string) {
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.message || "Failed to apply");
+    return { error: data.message || "Failed to apply" };
   }
 
   revalidatePath(`/jobs/${jobId}`);

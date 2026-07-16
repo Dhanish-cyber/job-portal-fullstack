@@ -26,15 +26,13 @@ export function NotificationsToggle() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
-          🔔
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-600 text-[8px] text-white">
-              {unreadCount}
-            </span>
-          )}
-        </Button>
+      <DropdownMenuTrigger className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground text-xl">
+        🔔
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-600 text-[8px] text-white">
+            {unreadCount}
+          </span>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex justify-between items-center">

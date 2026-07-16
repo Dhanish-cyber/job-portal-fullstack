@@ -35,3 +35,26 @@ export async function updateProfile(data: {
   revalidatePath("/recruiter/profile");
   return resData.profile;
 }
+
+export async function uploadResumeAction(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) throw new Error("Unauthorized");
+
+  const token = (session as any).accessToken;
+
+  const res = await fetch("http://localhost:5000/api/users/profile/resume", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    body: formData
+  });
+
+  const resData = await res.json();
+  if (!res.ok) {
+    throw new Error(resData.message || "Failed to upload resume");
+  }
+
+  revalidatePath("/candidate/profile");
+  return resData.resumeUrl;
+}

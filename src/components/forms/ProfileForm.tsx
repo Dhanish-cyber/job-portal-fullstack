@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { updateProfile } from "@/app/actions/profile";
+import { updateProfile, uploadResumeAction } from "@/app/actions/profile";
 import { parseResume } from "@/app/actions/resume";
 
 export default function ProfileForm({ initialData }: { initialData: any }) {
@@ -26,14 +26,23 @@ export default function ProfileForm({ initialData }: { initialData: any }) {
       skills: initialData?.skills || "",
       education: initialData?.education || "",
       experience: initialData?.experience || "",
-      resumeUrl: initialData?.resumeUrl || "",
+      resumeFile: null,
     },
   });
 
   async function onSubmit(values: any) {
     setLoading(true);
     try {
-      await updateProfile(values);
+      if (values.resumeFile) {
+        const formData = new FormData();
+        formData.append("resume", values.resumeFile);
+        await uploadResumeAction(formData);
+      }
+      await updateProfile({
+        skills: values.skills,
+        education: values.education,
+        experience: values.experience
+      });
       alert("Profile updated successfully!");
     } catch (error) {
       console.error(error);
@@ -44,21 +53,7 @@ export default function ProfileForm({ initialData }: { initialData: any }) {
   }
 
   async function handleAutoFill() {
-    const resumeUrl = form.getValues("resumeUrl");
-    if (!resumeUrl) return alert("Please provide a Resume URL first.");
-    
-    setParsing(true);
-    try {
-      const data = await parseResume(resumeUrl);
-      form.setValue("skills", data.skills.join(", "));
-      form.setValue("education", data.education);
-      form.setValue("experience", data.experience);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to parse resume.");
-    } finally {
-      setParsing(false);
-    }
+    alert("Auto-fill from PDF is not fully implemented yet.");
   }
 
   return (
@@ -114,15 +109,27 @@ export default function ProfileForm({ initialData }: { initialData: any }) {
 
           <FormField
             control={form.control}
-            name="resumeUrl"
-            render={({ field }) => (
+            name="resumeFile"
+            render={({ field: { value, onChange, ...fieldProps } }) => (
               <FormItem>
-                <FormLabel>Resume URL (Optional)</FormLabel>
+                <FormLabel>Resume (PDF)</FormLabel>
                 <FormControl>
-                  <Input placeholder="https://link-to-your-resume.pdf" {...field} />
+                  <Input 
+                    type="file" 
+                    accept="application/pdf"
+                    onChange={(e) => onChange(e.target.files?.[0])}
+                    {...fieldProps}
+                  />
                 </FormControl>
                 <FormDescription>
-                  Upload your resume to a cloud provider and paste the link here.
+                  Upload your latest resume (PDF format).
+                  {initialData?.resumeUrl && (
+                    <span className="block mt-1">
+                      <a href={`http://localhost:5000${initialData.resumeUrl}`} target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">
+                        View current resume
+                      </a>
+                    </span>
+                  )}
                 </FormDescription>
                 <FormMessage />
               </FormItem>

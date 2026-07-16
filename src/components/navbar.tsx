@@ -50,7 +50,7 @@ export default async function Navbar() {
                   await signOut();
                 }}
               >
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" type="submit">
                   Sign out
                 </Button>
               </form>
